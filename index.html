@@ -1,0 +1,897 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Asphalt Calc">
+    <meta name="theme-color" content="#20754F">
+    <title>Asphalt Calculator Pro</title>
+    <style>
+        :root {
+            --color-bg-base: #0f172a;
+            --color-bg-elevated: #1e293b;
+            --color-bg-surface: #334155;
+            --color-text-primary: #f1f5f9;
+            --color-text-secondary: #cbd5e1;
+            --color-text-muted: #94a3b8;
+            --color-primary: #38bdf8;
+            --color-primary-hover: #0ea5e9;
+            --color-success: #10b981;
+            --color-warning: #f59e0b;
+            --color-error: #ef4444;
+            --font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        }
+
+        @media (prefers-color-scheme: light) {
+            :root {
+                --color-bg-base: #ffffff;
+                --color-bg-elevated: #f8fafc;
+                --color-bg-surface: #e2e8f0;
+                --color-text-primary: #0f172a;
+                --color-text-secondary: #475569;
+                --color-text-muted: #64748b;
+                --color-primary: #0284c7;
+                --color-primary-hover: #0369a1;
+            }
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-family);
+            background-color: var(--color-bg-base);
+            color: var(--color-text-primary);
+            line-height: 1.5;
+            padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 24px;
+            padding-top: 12px;
+        }
+
+        h1 {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--color-primary);
+            margin-bottom: 4px;
+        }
+
+        .subtitle {
+            font-size: 14px;
+            color: var(--color-text-muted);
+        }
+
+        .tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 24px;
+            border-bottom: 2px solid var(--color-bg-surface);
+        }
+
+        .tab {
+            flex: 1;
+            padding: 12px;
+            background: transparent;
+            border: none;
+            border-bottom: 3px solid transparent;
+            color: var(--color-text-secondary);
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .tab.active {
+            color: var(--color-primary);
+            border-bottom-color: var(--color-primary);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .card {
+            background: var(--color-bg-elevated);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 16px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        label {
+            display: block;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--color-text-secondary);
+            margin-bottom: 6px;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 14px;
+            background: var(--color-bg-surface);
+            border: 2px solid transparent;
+            border-radius: 8px;
+            color: var(--color-text-primary);
+            font-size: 16px;
+            transition: all 0.2s;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--color-primary);
+        }
+
+        .input-group {
+            display: flex;
+            gap: 8px;
+            align-items: flex-end;
+        }
+
+        .input-group .form-group {
+            flex: 1;
+            margin-bottom: 0;
+        }
+
+        .unit {
+            background: var(--color-bg-surface);
+            padding: 14px;
+            border-radius: 8px;
+            font-size: 14px;
+            color: var(--color-text-muted);
+            min-width: 70px;
+            text-align: center;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 16px;
+            background: var(--color-primary);
+            color: #ffffff;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-top: 8px;
+        }
+
+        .btn:active {
+            transform: scale(0.98);
+            background: var(--color-primary-hover);
+        }
+
+        .btn-secondary {
+            background: var(--color-bg-surface);
+            color: var(--color-text-primary);
+        }
+
+        .result-box {
+            background: linear-gradient(135deg, var(--color-primary), #0ea5e9);
+            border-radius: 12px;
+            padding: 24px;
+            text-align: center;
+            margin-top: 20px;
+            color: #ffffff;
+        }
+
+        .result-label {
+            font-size: 14px;
+            opacity: 0.9;
+            margin-bottom: 4px;
+        }
+
+        .result-value {
+            font-size: 36px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .result-subtext {
+            font-size: 13px;
+            opacity: 0.85;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-top: 16px;
+        }
+
+        .info-item {
+            background: var(--color-bg-surface);
+            padding: 12px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .info-item-label {
+            font-size: 12px;
+            color: var(--color-text-muted);
+            margin-bottom: 4px;
+        }
+
+        .info-item-value {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--color-primary);
+        }
+
+        .saved-job {
+            background: var(--color-bg-surface);
+            padding: 16px;
+            border-radius: 8px;
+            margin-bottom: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .saved-job-info h3 {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .saved-job-info p {
+            font-size: 13px;
+            color: var(--color-text-muted);
+        }
+
+        .saved-job-tons {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--color-primary);
+        }
+
+        .btn-delete {
+            background: var(--color-error);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 14px;
+            cursor: pointer;
+            margin-left: 12px;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--color-text-muted);
+        }
+
+        .empty-state-icon {
+            font-size: 48px;
+            margin-bottom: 12px;
+        }
+
+        .quick-calc {
+            background: var(--color-bg-surface);
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .quick-calc:active {
+            transform: scale(0.98);
+        }
+
+        .quick-calc-label {
+            font-size: 15px;
+            font-weight: 600;
+        }
+
+        .quick-calc-value {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--color-primary);
+        }
+
+        .toggle-group {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+
+        .toggle-btn {
+            flex: 1;
+            padding: 10px;
+            background: var(--color-bg-surface);
+            border: 2px solid transparent;
+            border-radius: 8px;
+            color: var(--color-text-secondary);
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .toggle-btn.active {
+            background: var(--color-primary);
+            color: #ffffff;
+        }
+
+        .help-text {
+            font-size: 12px;
+            color: var(--color-text-muted);
+            margin-top: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🛣️ Asphalt Calculator Pro</h1>
+            <p class="subtitle">Professional tonnage calculator for asphalt paving</p>
+        </header>
+
+        <div class="tabs">
+            <button class="tab active" onclick="switchTab('calculator')">Calculator</button>
+            <button class="tab" onclick="switchTab('recent')">Recent</button>
+            <button class="tab" onclick="switchTab('saved')">Saved Jobs</button>
+        </div>
+
+        <div id="calculator" class="tab-content active">
+            <div class="card">
+                <h2 style="margin-bottom: 16px; font-size: 18px;">Tonnage Calculator</h2>
+                
+                <div class="form-group">
+                    <label>Job Name</label>
+                    <input type="text" id="jobName" placeholder="e.g., Main Street Parking Lot">
+                </div>
+
+                <div class="toggle-group">
+                    <button class="toggle-btn active" onclick="setShapeMode('rectangle')">Rectangle</button>
+                    <button class="toggle-btn" onclick="setShapeMode('circle')">Circle</button>
+                </div>
+
+                <div id="rectangleInputs">
+                    <div class="input-group">
+                        <div class="form-group">
+                            <label>Length</label>
+                            <input type="number" id="length" placeholder="0" inputmode="decimal">
+                        </div>
+                        <div class="unit">feet</div>
+                    </div>
+
+                    <div class="input-group">
+                        <div class="form-group">
+                            <label>Width</label>
+                            <input type="number" id="width" placeholder="0" inputmode="decimal">
+                        </div>
+                        <div class="unit">feet</div>
+                    </div>
+                </div>
+
+                <div id="circleInputs" style="display: none;">
+                    <div class="input-group">
+                        <div class="form-group">
+                            <label>Diameter</label>
+                            <input type="number" id="diameter" placeholder="0" inputmode="decimal">
+                        </div>
+                        <div class="unit">feet</div>
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <div class="form-group">
+                        <label>Depth (Thickness)</label>
+                        <input type="number" id="depth" placeholder="0" inputmode="decimal" step="0.25">
+                    </div>
+                    <div class="unit">inches</div>
+                </div>
+
+                <div class="form-group">
+                    <label style="display: flex; justify-content: space-between; align-items: center;">
+                        <span>Asphalt Density</span>
+                        <span style="font-size: 18px; font-weight: 700; color: var(--color-primary);" id="densityValue">110</span>
+                    </label>
+                    <input type="range" id="density" min="110" max="160" value="110" step="1" style="width: 100%; height: 40px; cursor: pointer;">
+                    <div style="display: flex; justify-content: space-between; font-size: 12px; color: var(--color-text-muted); margin-top: 4px;">
+                        <span>110</span>
+                        <span>135</span>
+                        <span>160 lbs/yd³/inch</span>
+                    </div>
+                </div>
+
+                <button class="btn" onclick="calculateTonnage()">Calculate Tonnage</button>
+                <button class="btn btn-secondary" onclick="saveJob()" style="margin-top: 8px;">Save This Job</button>
+
+                <div id="results" style="display: none;">
+                    <div class="result-box">
+                        <div class="result-label">Total Tons Needed</div>
+                        <div class="result-value" id="totalTons">0</div>
+                        <div class="result-subtext" id="wasteInfo"></div>
+                    </div>
+
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <div class="info-item-label">Area</div>
+                            <div class="info-item-value" id="area">0</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-item-label">Volume</div>
+                            <div class="info-item-value" id="volume">0</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="recent" class="tab-content">
+            <div class="card">
+                <h2 style="margin-bottom: 16px; font-size: 18px;">Recent Calculations</h2>
+                <p style="color: var(--color-text-muted); font-size: 14px; margin-bottom: 16px;">Last 5 calculations</p>
+                <div id="historyList"></div>
+            </div>
+
+            <div class="card">
+                <h3 style="margin-bottom: 12px; font-size: 16px;">Industry Standards</h3>
+                <p style="color: var(--color-text-secondary); font-size: 14px; line-height: 1.6;">
+                    <strong>Residential driveways:</strong> 2-3 inches<br>
+                    <strong>Parking lots:</strong> 3-4 inches<br>
+                    <strong>Heavy traffic areas:</strong> 4-6 inches<br>
+                    <strong>Formula:</strong> (L × W ÷ 9) × 110 × depth ÷ 2000<br>
+                    <strong>Compaction target:</strong> 92-96%
+                </p>
+            </div>
+        </div>
+
+        <div id="saved" class="tab-content">
+            <div class="card">
+                <h2 style="margin-bottom: 16px; font-size: 18px;">Saved Jobs</h2>
+                <div id="savedJobsList"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Constants
+        const LBS_PER_TON = 2000;
+
+        // State
+        let shapeMode = 'rectangle';
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            loadSavedJobs();
+            loadHistory();
+            
+            // Auto-calculate on input change
+            ['length', 'width', 'depth', 'diameter'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.addEventListener('input', autoCalculate);
+            });
+            
+            // Density slider update - use both input and change events for reliability
+            const densitySlider = document.getElementById('density');
+            const updateDensityDisplay = function() {
+                document.getElementById('densityValue').textContent = this.value;
+                autoCalculate();
+            };
+            densitySlider.addEventListener('input', updateDensityDisplay);
+            densitySlider.addEventListener('change', updateDensityDisplay);
+        });
+
+        // Tab switching
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            
+            event.target.classList.add('active');
+            document.getElementById(tabName).classList.add('active');
+
+            if (tabName === 'saved') {
+                loadSavedJobs();
+            } else if (tabName === 'recent') {
+                loadHistory();
+            }
+        }
+
+        // Shape mode toggle
+        function setShapeMode(mode) {
+            shapeMode = mode;
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            if (mode === 'rectangle') {
+                document.getElementById('rectangleInputs').style.display = 'block';
+                document.getElementById('circleInputs').style.display = 'none';
+            } else {
+                document.getElementById('rectangleInputs').style.display = 'none';
+                document.getElementById('circleInputs').style.display = 'block';
+            }
+            
+            // Clear results
+            document.getElementById('results').style.display = 'none';
+        }
+
+        // Calculate tonnage
+        function calculateTonnage() {
+            const depthInches = parseFloat(document.getElementById('depth').value) || 0;
+            const density = parseFloat(document.getElementById('density').value) || 110;
+            let area = 0;
+
+            if (shapeMode === 'rectangle') {
+                const length = parseFloat(document.getElementById('length').value) || 0;
+                const width = parseFloat(document.getElementById('width').value) || 0;
+
+                if (length === 0 || width === 0 || depthInches === 0) {
+                    alert('Please enter length, width, and depth');
+                    return;
+                }
+
+                // Calculate area (square feet)
+                area = length * width;
+            } else {
+                const diameter = parseFloat(document.getElementById('diameter').value) || 0;
+
+                if (diameter === 0 || depthInches === 0) {
+                    alert('Please enter diameter and depth');
+                    return;
+                }
+
+                // Calculate area (square feet) for circle: π × r²
+                const radius = diameter / 2;
+                area = Math.PI * radius * radius;
+            }
+
+            // Convert to square yards
+            const squareYards = area / 9;
+
+            // Calculate weight in pounds (sq yards × density × thickness in inches)
+            const weightLbs = squareYards * density * depthInches;
+
+            // Convert to tons
+            const tons = weightLbs / LBS_PER_TON;
+
+            // Calculate volume for display (cubic feet)
+            const depthFeet = depthInches / 12;
+            const volume = area * depthFeet;
+
+            // Display results
+            document.getElementById('results').style.display = 'block';
+            document.getElementById('totalTons').textContent = tons.toFixed(2);
+            document.getElementById('area').textContent = area.toFixed(0) + ' ft²';
+            document.getElementById('volume').textContent = volume.toFixed(1) + ' ft³';
+            document.getElementById('wasteInfo').textContent = `Density: ${density} lbs/yd³/inch`;
+
+            // Save to history
+            if (shapeMode === 'rectangle') {
+                const length = parseFloat(document.getElementById('length').value);
+                const width = parseFloat(document.getElementById('width').value);
+                addToHistory(length, width, depthInches, density, tons, 'rectangle');
+            } else {
+                const diameter = parseFloat(document.getElementById('diameter').value);
+                addToHistory(diameter, null, depthInches, density, tons, 'circle');
+            }
+
+            // Scroll to results
+            document.getElementById('results').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+
+        function autoCalculate() {
+            const depth = parseFloat(document.getElementById('depth').value) || 0;
+
+            if (shapeMode === 'rectangle') {
+                const length = parseFloat(document.getElementById('length').value) || 0;
+                const width = parseFloat(document.getElementById('width').value) || 0;
+                if (length > 0 && width > 0 && depth > 0) {
+                    calculateTonnage();
+                }
+            } else {
+                const diameter = parseFloat(document.getElementById('diameter').value) || 0;
+                if (diameter > 0 && depth > 0) {
+                    calculateTonnage();
+                }
+            }
+        }
+
+        // History functions
+        function addToHistory(length, width, depth, density, tons, shape) {
+            let history = JSON.parse(localStorage.getItem('asphaltHistory') || '[]');
+            
+            const entry = {
+                id: Date.now(),
+                shape: shape || 'rectangle',
+                length: length,
+                width: width,
+                depth: depth,
+                density: density,
+                tons: tons,
+                timestamp: new Date().toLocaleString()
+            };
+
+            history.unshift(entry);
+            
+            // Keep only last 5 entries
+            if (history.length > 5) {
+                history = history.slice(0, 5);
+            }
+            
+            localStorage.setItem('asphaltHistory', JSON.stringify(history));
+        }
+
+        function loadHistory() {
+            const history = JSON.parse(localStorage.getItem('asphaltHistory') || '[]');
+            const container = document.getElementById('historyList');
+
+            if (history.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">📊</div>
+                        <p>No calculation history yet</p>
+                        <p style="font-size: 13px; margin-top: 8px;">Your recent calculations will appear here</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = history.map(entry => {
+                const shape = entry.shape || 'rectangle';
+                const dimensions = shape === 'circle' 
+                    ? `⭕ ${entry.length}' dia × ${entry.depth}"`
+                    : `${entry.length}' × ${entry.width}' × ${entry.depth}"`;
+                
+                return `
+                    <div class="saved-job" style="cursor: pointer;" onclick="loadFromHistory(${entry.id})">
+                        <div class="saved-job-info">
+                            <h3>${dimensions}</h3>
+                            <p>Density: ${entry.density} lbs/yd³/inch | ${entry.timestamp}</p>
+                        </div>
+                        <div style="display: flex; align-items: center;">
+                            <span class="saved-job-tons">${entry.tons.toFixed(2)} tons</span>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function loadFromHistory(id) {
+            const history = JSON.parse(localStorage.getItem('asphaltHistory') || '[]');
+            const entry = history.find(e => e.id === id);
+            
+            if (!entry) return;
+
+            // Switch to calculator tab and populate
+            switchTab('calculator');
+            document.querySelector('.tabs .tab').click();
+            
+            const shape = entry.shape || 'rectangle';
+            
+            if (shape === 'circle') {
+                setShapeMode('circle');
+                document.querySelectorAll('.toggle-btn')[1].click();
+                document.getElementById('diameter').value = entry.length;
+            } else {
+                setShapeMode('rectangle');
+                document.querySelectorAll('.toggle-btn')[0].click();
+                document.getElementById('length').value = entry.length;
+                document.getElementById('width').value = entry.width;
+            }
+            
+            document.getElementById('depth').value = entry.depth;
+            document.getElementById('density').value = entry.density;
+            document.getElementById('densityValue').textContent = entry.density;
+            
+            calculateTonnage();
+        }
+
+        // Save/Load jobs
+        function saveJob() {
+            const jobName = document.getElementById('jobName').value.trim() || 'Unnamed Job';
+            const depth = parseFloat(document.getElementById('depth').value) || 0;
+            const density = parseFloat(document.getElementById('density').value) || 110;
+            const tons = parseFloat(document.getElementById('totalTons').textContent) || 0;
+
+            let length = 0, width = 0;
+
+            if (shapeMode === 'rectangle') {
+                length = parseFloat(document.getElementById('length').value) || 0;
+                width = parseFloat(document.getElementById('width').value) || 0;
+                if (length === 0 || width === 0 || depth === 0) {
+                    alert('Please calculate tonnage before saving');
+                    return;
+                }
+            } else {
+                length = parseFloat(document.getElementById('diameter').value) || 0;
+                if (length === 0 || depth === 0) {
+                    alert('Please calculate tonnage before saving');
+                    return;
+                }
+            }
+
+            let jobs = JSON.parse(localStorage.getItem('asphaltJobs') || '[]');
+            
+            // Find existing job by name
+            let existingJob = jobs.find(j => j.name === jobName);
+            
+            const calculation = {
+                shape: shapeMode,
+                length: length,
+                width: width,
+                depth: depth,
+                density: density,
+                tons: tons,
+                date: new Date().toLocaleString()
+            };
+
+            if (existingJob) {
+                // Add calculation to existing job
+                existingJob.calculations.unshift(calculation);
+                existingJob.lastUpdated = new Date().toLocaleString();
+            } else {
+                // Create new job
+                const newJob = {
+                    id: Date.now(),
+                    name: jobName,
+                    calculations: [calculation],
+                    lastUpdated: new Date().toLocaleString()
+                };
+                jobs.unshift(newJob);
+            }
+
+            localStorage.setItem('asphaltJobs', JSON.stringify(jobs));
+
+            alert('Job saved successfully!');
+            switchTab('saved');
+            document.querySelectorAll('.tab')[2].click();
+        }
+
+        function loadSavedJobs() {
+            const jobs = JSON.parse(localStorage.getItem('asphaltJobs') || '[]');
+            const container = document.getElementById('savedJobsList');
+
+            if (jobs.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">📋</div>
+                        <p>No saved jobs yet</p>
+                        <p style="font-size: 13px; margin-top: 8px;">Calculate and save jobs to track them here</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = jobs.map(job => {
+                const calcsList = job.calculations.map(calc => {
+                    const shape = calc.shape || 'rectangle';
+                    const dimensions = shape === 'circle'
+                        ? `⭕ ${calc.length}' dia × ${calc.depth}"`
+                        : `${calc.length}' × ${calc.width}' × ${calc.depth}"`;
+                    
+                    return `
+                        <div style="background: var(--color-bg-base); padding: 12px; border-radius: 6px; margin-top: 8px; cursor: pointer;" onclick="loadFromSavedJob(${job.id}, '${calc.date}')">
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <div>
+                                    <p style="font-size: 14px; font-weight: 600; margin-bottom: 2px;">${dimensions}</p>
+                                    <p style="font-size: 12px; color: var(--color-text-muted);">Density: ${calc.density} lbs/yd³/inch</p>
+                                    <p style="font-size: 11px; color: var(--color-text-muted); margin-top: 2px;">${calc.date}</p>
+                                </div>
+                                <span style="font-size: 18px; font-weight: 700; color: var(--color-primary);">${calc.tons.toFixed(2)} tons</span>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+
+                return `
+                    <div class="card" style="margin-bottom: 16px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                            <h3 style="font-size: 16px; font-weight: 600;">${job.name}</h3>
+                            <button class="btn-delete" onclick="deleteJob(${job.id})">Delete</button>
+                        </div>
+                        <p style="font-size: 12px; color: var(--color-text-muted); margin-bottom: 8px;">${job.calculations.length} calculation(s) | Last: ${job.lastUpdated}</p>
+                        ${calcsList}
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function loadFromSavedJob(jobId, calcDate) {
+            const jobs = JSON.parse(localStorage.getItem('asphaltJobs') || '[]');
+            const job = jobs.find(j => j.id === jobId);
+            if (!job) return;
+
+            const calc = job.calculations.find(c => c.date === calcDate);
+            if (!calc) return;
+
+            // Switch to calculator tab and populate
+            switchTab('calculator');
+            document.querySelector('.tabs .tab').click();
+            
+            const shape = calc.shape || 'rectangle';
+            
+            document.getElementById('jobName').value = job.name;
+            
+            if (shape === 'circle') {
+                setShapeMode('circle');
+                document.querySelectorAll('.toggle-btn')[1].click();
+                document.getElementById('diameter').value = calc.length;
+            } else {
+                setShapeMode('rectangle');
+                document.querySelectorAll('.toggle-btn')[0].click();
+                document.getElementById('length').value = calc.length;
+                document.getElementById('width').value = calc.width;
+            }
+            
+            document.getElementById('depth').value = calc.depth;
+            document.getElementById('density').value = calc.density;
+            document.getElementById('densityValue').textContent = calc.density;
+            
+            calculateTonnage();
+        }
+
+        function deleteJob(id) {
+            if (!confirm('Delete this job?')) return;
+
+            let jobs = JSON.parse(localStorage.getItem('asphaltJobs') || '[]');
+            jobs = jobs.filter(job => job.id !== id);
+            localStorage.setItem('asphaltJobs', JSON.stringify(jobs));
+            loadSavedJobs();
+        }
+
+        // Service Worker for offline support
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                const swCode = `
+                    const CACHE_NAME = 'asphalt-calc-v1';
+                    const urlsToCache = ['/'];
+                    
+                    self.addEventListener('install', event => {
+                        event.waitUntil(
+                            caches.open(CACHE_NAME)
+                                .then(cache => cache.addAll(urlsToCache))
+                        );
+                    });
+                    
+                    self.addEventListener('fetch', event => {
+                        event.respondWith(
+                            caches.match(event.request)
+                                .then(response => response || fetch(event.request))
+                        );
+                    });
+                `;
+                
+                const blob = new Blob([swCode], { type: 'application/javascript' });
+                const swUrl = URL.createObjectURL(blob);
+                
+                navigator.serviceWorker.register(swUrl)
+                    .then(() => console.log('Service Worker registered'))
+                    .catch(err => console.log('SW registration failed:', err));
+            });
+        }
+    </script>
+</body>
+</html>
+
